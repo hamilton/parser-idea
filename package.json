@@ -1,0 +1,45 @@
+{
+  "name": "parser",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --no-cache",
+    "start": "webpack --watch --env dev",
+    "build": "webpack  --env prod",
+    "lint": "eslint src/ test/ --config=.eslintrc.js --ext=.js -f unix"
+  },
+  "jest": {
+    "transformIgnorePatterns": [
+      "/node_modules/(?!test-component).+\\.js$"
+    ],
+    "globals": {
+      "window": true
+    }
+  },
+  "author": "Hamilton Ulmer",
+  "license": "MPL-2.0",
+  "devDependencies": {
+    "babel-core": "^6.25.0",
+    "babel-eslint": "^8.0.3",
+    "babel-jest": "^21.2.0",
+    "babel-loader": "^7.1.1",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.0",
+    "babel-preset-es2016": "^6.24.1",
+    "enzyme": "^3.3.0",
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-config-google": "^0.9.1",
+    "eslint-loader": "^2.0.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-jest": "^21.12.1",
+    "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-react": "^7.6.1",
+    "jest": "^23.0.0-alpha.0",
+    "jest-cli": "^23.0.0-alpha.0",
+    "uglifyjs-webpack-plugin": "^1.2.4",
+    "webpack": "^4.20.2",
+    "webpack-cli": "^3.1.1"
+  }
+}
