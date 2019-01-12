@@ -1,6 +1,7 @@
 const webpack = require('webpack')
 const path = require('path')
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
+// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 const APP_DIR = path.resolve(__dirname, 'src/')
 
@@ -13,11 +14,19 @@ module.exports = (env) => {
     BUILD_DIR = path.resolve(__dirname, 'prod/')
     plugins.push(new UglifyJsPlugin())
     CSS_PATH_STRING = APP_PATH_STRING
+    plugins.push(new webpack.DefinePlugin({
+      'process.env.NODE_ENV': '"production"',
+    }))
+    // plugins.push(new BundleAnalyzerPlugin())
   } else if (env === 'dev') {
+    plugins.push(new webpack.DefinePlugin({
+      'process.env.NODE_ENV': '"development"',
+    }))
     BUILD_DIR = path.resolve(__dirname, 'dev/')
     APP_VERSION_STRING = 'dev'
     APP_PATH_STRING = ''
     CSS_PATH_STRING = ''
+    // plugins.push(new BundleAnalyzerPlugin())
   }
 
   return {

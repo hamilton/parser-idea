@@ -8,6 +8,7 @@ import 'codemirror-no-newlines'
 import parse from '../parser'
 import { captureVsComparator } from '../operator'
 
+
 const GRAMMAR = {
   options: {
     caseInsensitive: true,
@@ -199,7 +200,7 @@ margin-right: 2px;
 export default class ParsingInput extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { output: [], value: '' }
+    this.state = { output: {}, value: '' }
     this.onChange = this.onChange.bind(this)
   }
 
@@ -214,7 +215,7 @@ export default class ParsingInput extends React.Component {
     } else {
       output = []
     }
-    if (!output) output = []
+    if (!output) output = {}
     this.setState({ output, value })
   }
 
@@ -234,7 +235,7 @@ export default class ParsingInput extends React.Component {
           />
         </InputContainer>
         <OutputContainer>
-          {this.state.output.map(o => <OutputGroup key={`group-${o.key}`}><OutputField key={o.key}>{o.key}</OutputField>{o.values.map(oo => <OutputValue key={oo}>{oo}</OutputValue>)}</OutputGroup>)}
+          {this.state.output.instructions && this.state.output.instructions.map(o => <OutputGroup key={`group-${o.key}`}><OutputField key={o.key}>{o.key}</OutputField>{o.values.map(oo => <OutputValue key={oo}>{oo}</OutputValue>)}</OutputGroup>)}
         </OutputContainer>
       </React.Fragment>
     )
