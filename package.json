@@ -20,13 +20,15 @@
   "author": "Hamilton Ulmer",
   "license": "MPL-2.0",
   "devDependencies": {
-    "babel-core": "^6.25.0",
+    "@babel/core": "^7.2.2",
+    "@babel/plugin-proposal-class-properties": "^7.2.3",
+    "@babel/preset-env": "^7.2.3",
+    "@babel/preset-react": "^7.0.0",
     "babel-eslint": "^8.0.3",
     "babel-jest": "^21.2.0",
-    "babel-loader": "^7.1.1",
-    "babel-plugin-transform-class-properties": "^6.24.1",
-    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.0",
-    "babel-preset-es2016": "^6.24.1",
+    "babel-loader": "8.0.5",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
+    "css-loader": "^2.1.0",
     "enzyme": "^3.3.0",
     "eslint": "^4.19.1",
     "eslint-config-airbnb": "^16.1.0",
@@ -36,10 +38,19 @@
     "eslint-plugin-jest": "^21.12.1",
     "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-react": "^7.6.1",
-    "jest": "^23.0.0-alpha.0",
-    "jest-cli": "^23.0.0-alpha.0",
+    "jest": "^23.6.0",
+    "jest-cli": "^23.6.0",
+    "style-loader": "^0.23.1",
     "uglifyjs-webpack-plugin": "^1.2.4",
     "webpack": "^4.20.2",
     "webpack-cli": "^3.1.1"
+  },
+  "dependencies": {
+    "codemirror": "^5.42.2",
+    "codemirror-no-newlines": "^1.0.2",
+    "react": "^16.7.0",
+    "react-codemirror2": "^5.1.0",
+    "react-dom": "^16.7.0",
+    "styled-components": "^4.1.3"
   }
 }

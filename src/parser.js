@@ -3,6 +3,10 @@ import { takeOperator } from './operator'
 function removePunctuation(c) {
   return c.replace(/[^A-Za-z0-9_]/g, '');
 }
+const compareCaseSensitiveString = (s, grammar) => {
+  if (grammar.options && Boolean(grammar.options.caseInsensitive)) return s.toLowerCase()
+  return s
+}
 
 export const locateField = (v, grammar) => {
   if (typeof v !== 'string') throw Error(`requires a string, instead got ${typeof v}`)
@@ -10,7 +14,10 @@ export const locateField = (v, grammar) => {
     if (f.compare) {
       const returnValue = f.compare(v, f.values)
       if (returnValue) return { field: f.field, value: returnValue }
-    } else if (f.values.includes(v)) return { type: 'field', key: f.field, value: v }
+    } else if (f.values.map(fi =>
+      compareCaseSensitiveString(fi, grammar)).includes(compareCaseSensitiveString(v, grammar))) {
+      return { type: 'field', key: f.field, value: v }
+    }
     return undefined
   }).filter(f => f !== undefined)
   if (matches.length > 1) throw Error(`there should only be one match for ${v}`)
@@ -47,8 +54,8 @@ export const tagToken = (v, grammar) => {
 
 export const getNextOperation = tokens => tokens.map((v, i) => [Object.assign({}, v), i]).filter(vi => vi[0].type === 'operation')[0]
 
-export const parse = (str, grammar) => {
-  let tokens = str.split(/[ ,]+/)
+export default (str, grammar) => {
+  let tokens = str.split(/[(and) ,]+/)
     .filter(s => s.length)
     .map(v => tagToken(v, grammar))
   const instructions = []

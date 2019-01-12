@@ -21,17 +21,25 @@ module.exports = (env) => {
   }
 
   return {
-    entry: `${APP_DIR}/parser.js`,
+    entry: {
+      parser: `${APP_DIR}/parser.js`,
+      frontend: `${APP_DIR}/components/index.jsx`,
+
+    },
     mode: 'development',
     output: {
       path: BUILD_DIR,
-      filename: 'parser.js',
+      filename: '[name].js',
       library: 'parser',
       libraryTarget: 'umd',
       libraryExport: 'default',
     },
     module: {
       rules: [
+        {
+          test: /\.css$/,
+          use: ['style-loader', 'css-loader'],
+        },
         {
           enforce: 'pre',
           test: /\.js?$/,
@@ -41,10 +49,20 @@ module.exports = (env) => {
             // eslint options (if necessary)
             emitWarning: true,
             emitError: true,
-            extensions: ['.js'],
+            extensions: ['.js', '.jsx'],
+          },
+        },
+        {
+          test: /\.js?/,
+          include: APP_DIR,
+          resolve: { extensions: ['.js', '.jsx'] },
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env'],
           },
         },
       ],
+
     },
     watchOptions: { poll: true },
     plugins,
