@@ -10,8 +10,17 @@ export const PRODUCT_DASHBOARD = {
       key: 'compare',
       function: captureVsComparator,
     },
+    {
+      operation: 'vs plus',
+      key: 'compare',
+      function: captureVsComparator,
+    },
   ],
   fields: [
+    {
+      field: 'multiword',
+      values: ['one', 'one love', 'one more time', 'firstWord', 'two words', 'two tags', 'one two three', 'one two four', 'one two four five'],
+    },
     {
       field: 'version',
       values: ['61', '62', '63'],

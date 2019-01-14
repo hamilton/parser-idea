@@ -3,10 +3,11 @@ import styled from 'styled-components'
 import { UnControlled as CodeMirrorContainer } from 'react-codemirror2'
 import Codemirror from 'codemirror'
 import 'codemirror/addon/mode/simple'
+import 'codemirror/addon/display/placeholder'
 import 'codemirror-no-newlines'
 
 import parse from '../parser'
-import { captureVsComparator } from '../operator'
+import { captureVsComparator, helpOperator } from '../operator'
 
 
 const GRAMMAR = {
@@ -19,8 +20,17 @@ const GRAMMAR = {
       key: 'compare',
       function: captureVsComparator,
     },
+    {
+      operation: 'help',
+      key: 'help',
+      function: helpOperator,
+    },
   ],
   fields: [
+    {
+      field: 'phrases',
+      values: ['one love', 'one more time', 'please please me'],
+    },
     {
       field: 'version',
       values: ['60', '61', '62', '63'],
@@ -31,7 +41,7 @@ const GRAMMAR = {
     },
     {
       field: 'product',
-      values: ['Firefox', 'Chrome', 'Edge', 'Safari', 'Messenger', 'WhatsApp', 'Instagram'],
+      values: ['Firefox', 'Focus', 'Chrome', 'Edge', 'Safari', 'Messenger', 'WhatsApp', 'Instagram', 'Twitter', 'Facebook'],
     },
     {
       field: 'channel',
@@ -43,8 +53,12 @@ const GRAMMAR = {
     },
     {
       field: 'metric',
-      values: ['downloads', 'retention', 'MAUs', 'crashes', 'rating'],
+      values: ['downloads', 'retention', 'MAUs', 'crashes', 'rating', 'share'],
     },
+  ],
+  examples: [
+    'Firefox nightly 62, US vs. GB, crashes',
+    'Messenger vs. WhatsApp vs Instagram, downloaads, rating, US',
   ],
 }
 
@@ -57,7 +71,7 @@ const createHighlighter = (grammar) => {
       { regex: /(vs\.|vs)/i, token: 'ignore' },
       ...rules,
       { regex: /\s/, token: 'whitespace' },
-      { regex: /.*?\s/, token: 'candidate' },
+      // { regex: /.*?\s/, token: 'candidate' },
     ],
   }
 }
@@ -116,6 +130,10 @@ export const InputContainer = styled.div`
   font-weight: 900;
 }
 
+pre.CodeMirror-placeholder {
+  color: gainsboro;
+}
+
 .CodeMirror-lines {
   padding: 20px;
 }
@@ -154,18 +172,21 @@ export const InputField = styled.input`
 
 const OutputGroup = styled.div`
 display: flex;
-color: tomato;
-border: 4px solid orange;
+color: ${props => (props.unmatched ? 'gray' : 'tomato')};
+border: 4px solid ${props => (props.unmatched ? 'gray' : 'orange')};
+opacity: ${props => (props.unmatched ? 0.5 : 1)};
 border-radius: 12px;
 align-items: baseline;
 padding: 4px;
+margin-bottom:4px;
 `
 
 const OutputContainer = styled.div`
 display: flex;
+flex-wrap: wrap;
 width: 80vw;
 margin:auto;
-margin-top:438px;
+margin-top:38px;
 padding-left: 40px;
 
 ${OutputGroup} {
@@ -182,6 +203,11 @@ ${OutputGroup}:last-child {
 }
 `
 
+const OutputOperator = styled.div`
+padding:10px;
+font-weight:900;
+`
+
 const OutputField = styled.div`
 font-weight: 300;
 padding: 10px;
@@ -196,6 +222,63 @@ padding: 10px;
 margin-left:  2px;
 margin-right: 2px;
 `
+
+const HelpText = styled.div`
+width: 80vw;
+margin:auto;
+font-size:20px;
+font-weight:900;
+color: purple;
+`
+
+export const HelpContainer = styled.div`
+width: 80vw;
+margin:auto;
+margin-top:60px;`
+
+export const HelpSectionHeader = styled.h2``
+
+export const HFieldContainer = styled.div`
+display: flex;
+flex-wrap: wrap;
+align-items: baseline;`
+export const HFieldName = styled.div`
+font-weight: 900;
+padding:10px;`
+
+export const HFieldValue = styled.div`
+font-weight: 300;
+padding:10px;`
+
+export const HFieldBlock = styled.div`
+`
+
+export const Example = styled.div`
+font-family: monospace;
+margin-top:10px;
+margin-bottom: 10px;
+`
+
+export class Help extends React.Component {
+  render() {
+    return (
+      <HelpContainer>
+        {this.props.grammar.examples &&
+        <React.Fragment><HelpSectionHeader>Try These Examples</HelpSectionHeader>
+          <HFieldBlock>
+            {this.props.grammar.examples.map(e =>
+              <Example> > {e}</Example>)}
+          </HFieldBlock>
+        </React.Fragment>}
+        <HelpSectionHeader>Field</HelpSectionHeader>
+        {this.props.grammar.fields.map(f => (
+          <HFieldContainer>
+            <HFieldName>{f.field}</HFieldName>
+            {f.values.map(fi => <HFieldValue>{fi}</HFieldValue>)}
+          </HFieldContainer>))}
+      </HelpContainer>)
+  }
+}
 
 export default class ParsingInput extends React.Component {
   constructor(props) {
@@ -220,23 +303,47 @@ export default class ParsingInput extends React.Component {
   }
 
   render() {
+    const { output } = this.state
+    const needHelp = output.instructions && output.instructions.map(i => i.operation).includes('help')
     return (
       <React.Fragment>
         <BigOlTitle>Product Metrics Explorer</BigOlTitle>
         <InputContainer>
+          <HelpText>Type "help" at any time to get started</HelpText>
           <CodeMirrorContainer
             value={this.state.value}
             options={{
               mode: 'input',
               theme: 'default',
               noNewlines: true,
+              placeholder: GRAMMAR.examples[0],
             }}
             onChange={this.onChange}
           />
         </InputContainer>
-        <OutputContainer>
-          {this.state.output.instructions && this.state.output.instructions.map(o => <OutputGroup key={`group-${o.key}`}><OutputField key={o.key}>{o.key}</OutputField>{o.values.map(oo => <OutputValue key={oo}>{oo}</OutputValue>)}</OutputGroup>)}
-        </OutputContainer>
+        {
+          needHelp ? <Help grammar={GRAMMAR} /> : undefined
+        }
+        {
+          Object.keys(this.state.output).length ? (
+            <OutputContainer>
+              {output.instructions && !needHelp && output.instructions.map(o => (
+                <OutputGroup key={`group-${o.key}`}>
+                  <OutputOperator key={`operator-${o.operation}`}>{o.operation}</OutputOperator>
+                  <OutputField key={o.key}>{o.key}</OutputField>
+                  {o.values.map(oo => <OutputValue key={oo}>{oo}</OutputValue>)}
+                </OutputGroup>))
+            }
+              {this.state.output.unmatchedTokens.length ?
+                <OutputGroup unmatched><OutputField>unmatched</OutputField>
+                  {this.state.output.unmatchedTokens.map(o =>
+                    <OutputValue key={o.value}>{o.value}</OutputValue>)}
+                </OutputGroup> : undefined}
+            </OutputContainer>
+          ) :
+          undefined
+        }
+
       </React.Fragment>
     )
   }

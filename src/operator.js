@@ -1,11 +1,12 @@
-
-export const takeOperator = (index, tokens) => {
+export const takeOperator = (index, tokens, providedKey = undefined) => {
   // collect all the tokens that match whichever one is at index.
-  const { key } = tokens[index]
+  const key = providedKey || tokens[index].key
   const takeThese = tokens.filter(t => t.key === key)
   const theOtherTokens = tokens.filter(t => t.key !== key)
   return [takeThese, theOtherTokens]
 }
+
+export const helpOperator = (index, tokens) => takeOperator(index, tokens, 'help')
 
 export const captureVsComparator = (index, tokens) => {
   // look
