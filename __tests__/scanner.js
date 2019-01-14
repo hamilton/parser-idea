@@ -71,8 +71,6 @@ describe('scan', () => {
       in: 'one, one vs one two four vs one',
       out: [
         { type: 'field', value: 'one', key: 'multiword' },
-        // { type: 'field', key: 'multiword', value: 'one love' },
-        // { type: 'field', key: 'multiword', value: 'one more time' },
         { type: 'field', value: 'one', key: 'multiword' },
         {
           type: 'operation', key: 'compare', value: 'vs', function: captureVsComparator,
@@ -85,8 +83,8 @@ describe('scan', () => {
       ],
     },
   ]
-  it('scans', () => {
-    scans.forEach((s) => {
+  scans.forEach((s) => {
+    it(s.in, () => {
       expect(scan(s.in, PRODUCT_DASHBOARD)).toEqual(s.out)
     })
   })

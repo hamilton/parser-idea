@@ -21,20 +21,12 @@ describe('parse', () => {
         ],
         tokens: [
           { key: 'locale', type: 'field', value: 'a' },
-          // { type: 'stopword', value: ' ' },
           { key: 'locale', type: 'field', value: 'b' },
-          // { type: 'stopword', value: ' ' },
           { key: 'locale', type: 'field', value: 'c' },
-          // { type: 'stopword', value: ' ' },
           { key: 'locale', type: 'field', value: 'd' },
-          // { type: 'stopword', value: ' ' },
           { key: 'version', type: 'field', value: '61' },
-          // { type: 'stopword', value: ' ' },
           { key: 'version', type: 'field', value: '62' },
-          // { type: 'stopword', value: ',' },
-          // { type: 'stopword', value: ' ' },
           { key: 'version', type: 'field', value: '63' },
-          // { type: 'stopword', value: ' ' },
           { key: undefined, value: 'WHATEVER' }],
         unmatchedTokens: [{ type: undefined, value: 'WHATEVER' }],
       },
@@ -91,9 +83,9 @@ describe('parse', () => {
       },
     },
   ]
-  it('correctly parses out the operations and fields', () => {
-    expect(true).toBeTruthy()
-    tests.forEach((t) => {
+
+  tests.forEach((t) => {
+    it(t.in, () => {
       const out = parse(t.in, PRODUCT_DASHBOARD)
       expect(out).toEqual(t.out)
     })

@@ -31,7 +31,7 @@ export const PRODUCT_DASHBOARD = {
     },
     {
       field: 'product',
-      values: ['Firefox', 'Fenix', 'Focus'],
+      values: ['one pr', 'Firefox', 'Fenix', 'Focus'],
     },
     {
       field: 'channel',

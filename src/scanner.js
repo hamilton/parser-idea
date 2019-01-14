@@ -1,16 +1,12 @@
 export const noMatch = value => ({ type: undefined, value })
 
 export default (str, grammar) => {
-  const sortedFields = []
-  grammar.fields.forEach((f) => {
-    const { values, field } = f
-    values.sort((a, b) => {
-      if (b.length < a.length) return -1
-      if (b.length > a.length) return 1
-      return 0
-    })
-
-    sortedFields.push({ field, values })
+  // sort the gammar field values by length, so longest first always wins.
+  const sortedFields = [].concat(...grammar.fields.map(f => f.values.map(fi => [f.field, fi])))
+  sortedFields.sort((a, b) => {
+    if (b[1].length < a[1].length) return -1
+    if (b[1].length > a[1].length) return 1
+    return 0
   })
   const lexemes = []
 
@@ -18,19 +14,19 @@ export default (str, grammar) => {
 
   substrings.forEach((substring) => {
     let inputStr = substring
-    let c = 0
-    while (inputStr.length && c < 10) {
-      c += 1
+    while (inputStr.length) {
       let stop = false
       /* eslint-disable no-loop-func */
+      // look through all the sorted fields, and matches longest string
+      // first regardless of field. The longest match should win.
       sortedFields.forEach((f) => {
         if (!stop) {
-          const { values, field } = f
-          const match = values.filter(v => inputStr.startsWith(v))[0]
+          const [field, value] = f
+          const match = inputStr.startsWith(value)
           if (match) {
             stop = true
-            lexemes.push({ key: field, value: match, type: 'field' })
-            inputStr = inputStr.slice(match.length).trim()
+            lexemes.push({ key: field, value, type: 'field' })
+            inputStr = inputStr.slice(value.length).trim()
           }
         }
       })
