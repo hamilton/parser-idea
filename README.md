@@ -13,6 +13,10 @@ So let's try a little experiment. Here are my assumptions:
 4. this tiny language can be translated into a grammar of data manipulation.
 5. this parser cannot be allowed to grow in complexity. If it can do more than just slap together simple operations to make a chart appear, then we've probably already gone too.
 
+It could look something like this:
+
+![jan-11-2019 15-47-37](https://user-images.githubusercontent.com/95735/51126405-e510c600-17d7-11e9-8ba1-9c4e347720af.gif)
+
 
 ## design assumptions, for the eggheads out there
 
