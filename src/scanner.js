@@ -13,7 +13,7 @@ export default (str, grammar) => {
   const substrings = str.split(',').map(s => s.trim())
 
   substrings.forEach((substring) => {
-    let inputStr = substring
+    let inputStr = substring.toLowerCase()
     while (inputStr.length) {
       let stop = false
       /* eslint-disable no-loop-func */
@@ -22,7 +22,7 @@ export default (str, grammar) => {
       sortedFields.forEach((f) => {
         if (!stop) {
           const [field, value] = f
-          const match = inputStr.startsWith(value)
+          const match = inputStr.startsWith(value.toLowerCase())
           if (match) {
             stop = true
             lexemes.push({ key: field, value, type: 'field' })
@@ -35,7 +35,7 @@ export default (str, grammar) => {
           if (stop) return
           const { operation, key } = o
           const fcn = o.function
-          const match = inputStr.startsWith(operation)
+          const match = inputStr.startsWith(operation.toLowerCase())
           if (match) {
             stop = true
             lexemes.push({

@@ -7,8 +7,12 @@ import 'codemirror/addon/display/placeholder'
 import 'codemirror-no-newlines'
 
 import parse from '../parser'
-import { captureVsComparator, helpOperator } from '../operator'
+import { captureVsComparator } from '../operator'
 
+import Help from './help'
+import ParsedOutput from './parsed-output'
+
+const MAIN = '#AA076B';
 
 const GRAMMAR = {
   options: {
@@ -21,16 +25,12 @@ const GRAMMAR = {
       function: captureVsComparator,
     },
     {
-      operation: 'help',
-      key: 'help',
-      function: helpOperator,
+      operation: 'vs.',
+      key: 'compare',
+      function: captureVsComparator,
     },
   ],
   fields: [
-    {
-      field: 'phrases',
-      values: ['one love', 'one more time', 'please please me'],
-    },
     {
       field: 'version',
       values: ['60', '61', '62', '63'],
@@ -49,16 +49,16 @@ const GRAMMAR = {
     },
     {
       field: 'geo',
-      values: ['US', 'DK', 'FR', 'AU', 'GB'],
+      values: ['US', 'DK', 'FR', 'AU', 'GB', 'IN', 'ID'],
     },
     {
       field: 'metric',
-      values: ['downloads', 'retention', 'MAUs', 'crashes', 'rating', 'share'],
+      values: ['downloads', 'retention', 'MAUs', 'crashes', 'rating'],
     },
   ],
   examples: [
     'Firefox nightly 62, US vs. GB, crashes',
-    'Messenger vs. WhatsApp vs Instagram, downloaads, rating, US',
+    'Messenger vs. WhatsApp vs Instagram, downloads, rating, US',
   ],
 }
 
@@ -71,7 +71,7 @@ const createHighlighter = (grammar) => {
       { regex: /(vs\.|vs)/i, token: 'ignore' },
       ...rules,
       { regex: /\s/, token: 'whitespace' },
-      // { regex: /.*?\s/, token: 'candidate' },
+      { regex: /.*?\s/, token: 'candidate' },
     ],
   }
 }
@@ -90,7 +90,6 @@ const createStyle = field => `
   font-size:12px;
   transform: translate(0px, -12px);
 }
-
 `
 
 
@@ -99,15 +98,9 @@ Codemirror.defineSimpleMode('input', createHighlighter(GRAMMAR))
 
 const mozParser = str => parse(str, GRAMMAR)
 
-export const BigOlTitle = styled.h1`
-font-size: 70px;
-font-weight: 900;
-text-align:center;
-color: purple;
-text-transform: uppercase;`
-
 export const InputContainer = styled.div`
-
+grid-column: page-start / page-end;
+transition: 100ms;
 .CodeMirror {
   height: auto;
   overflow: hidden;
@@ -115,19 +108,19 @@ export const InputContainer = styled.div`
   background-color: #fbeaff;
   font-size: 35px;
   padding: 20px;
-  border: 6px solid #845ec2;
-  width: 80vw;
+  border: 6px solid ${MAIN};
   display: block;
   margin: auto;
   margin-top:50px;
   border-radius: 16px;
-  box-shadow: 
-    8px 8px 0px #d65db1,
-    16px 16px 0px #ff9671,
-    24px 24px 0px #ffc75f,
-    32px 32px 0px #f9f871;
   color: tomato;
   font-weight: 900;
+}
+
+.CodeMirror-scroll {
+  overflow: auto !important;
+  border-right-width:0 !important;
+  border-bottom-width:0 !important;
 }
 
 pre.CodeMirror-placeholder {
@@ -155,136 +148,99 @@ ${GRAMMAR.fields.map(f => createStyle(f.field))}
     animation: PulseAttention .75s cubic-bezier(.215, .61, .355, 1) forwards infinite;
 }
 
+.CodeMirror {
+  transition:100ms;
+}
+
+.CodeMirror-focused {
+  box-shadow: 
+    8px 8px 0px #ce0280,
+    16px 16px 0px #ff9671,
+    24px 24px 0px #ffc75f,
+    32px 32px 0px #f9f871;
+}
+
 @keyframes PulseAttention {
     50% {
       border: 6px solid purple;
         box-shadow: 
-  8px 8px 0px #845ec2,
-  16px 16px 0px #d65db1,
+  8px 8px 0px ${MAIN},
+  16px 16px 0px #ce0280,
   24px 24px 0px #ff9671,
   32px 32px 0px #ffc75f;
     }
 }
 `
 
-export const InputField = styled.input`
+
+const HelpButton = styled.button`
+grid-column: kicker-start / kicker-end;
+padding:20px;
+background-color: #fbeaff;
+border: 3px solid ${MAIN};
+border-radius: 5px;
+color: ${MAIN};
+font-weight: 900;
+text-transform: uppercase;
+font-size: 12px; 
+transition: 100ms;
+
+:hover {
+  cursor: pointer;
+  background-color: rgba(250, 170, 250, 1);
+  box-shadow: 
+    4px 4px 0px #d65db1,
+    8px 8px 0px #ff9671,
+    12px 12px 0px #ffc75f,
+    16px 16px 0px #f9f871;
+}
+:active {
+  cursor: pointer;
+  background-color: rgba(200, 120, 200, 1);
+  box-shadow:
+    2px 2px 0px  #61045F;
+}
+
 `
 
-const OutputGroup = styled.div`
-display: flex;
-color: ${props => (props.unmatched ? 'gray' : 'tomato')};
-border: 4px solid ${props => (props.unmatched ? 'gray' : 'orange')};
-opacity: ${props => (props.unmatched ? 0.5 : 1)};
-border-radius: 12px;
-align-items: baseline;
-padding: 4px;
-margin-bottom:4px;
+const LeftCaveat = styled.div`
+grid-column: screen / page-start;
+grid-row-start:1;
+grid-row-end:3;
+div {
+  padding: 20px;
+  font-weight:900;
+  text-transform:uppercase;
+  color: black;
+    text-align:left;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  letter-spacing:-3px;
+  border-bottom-right-radius:20px;
+  border-top-right-radius:20px;
+  border: 3px solid ${MAIN};
+  border-left: none;
+  opacity:.6;
+  box-shadow: 
+    0px 4px 0px #ce0280,
+    0px 8px 0px #ff9671,
+    0px 12px 0px #ffc75f,
+    0px 16px 0px #f9f871;
+}
 `
 
 const OutputContainer = styled.div`
-display: flex;
-flex-wrap: wrap;
-width: 80vw;
-margin:auto;
-margin-top:38px;
-padding-left: 40px;
+min-height: 100px;
+grid-column: page;
 
-${OutputGroup} {
-  margin-left: 2px;
-  margin-right: 2px;
-}
-
-${OutputGroup}:first-child {
-  margin-left:0px;
-}
-
-${OutputGroup}:last-child {
-  margin-right:0px;
-}
 `
-
-const OutputOperator = styled.div`
-padding:10px;
-font-weight:900;
-`
-
-const OutputField = styled.div`
-font-weight: 300;
-padding: 10px;
-`
-
-const OutputValue = styled.div`
-font-weight: 900;
-border: 3px solid tomato;
-background-color: #FFEFD5;
-border-radius: 7px;
-padding: 10px;
-margin-left:  2px;
-margin-right: 2px;
-`
-
-const HelpText = styled.div`
-width: 80vw;
-margin:auto;
-font-size:20px;
-font-weight:900;
-color: purple;
-`
-
-export const HelpContainer = styled.div`
-width: 80vw;
-margin:auto;
-margin-top:60px;`
-
-export const HelpSectionHeader = styled.h2``
-
-export const HFieldContainer = styled.div`
-display: flex;
-flex-wrap: wrap;
-align-items: baseline;`
-export const HFieldName = styled.div`
-font-weight: 900;
-padding:10px;`
-
-export const HFieldValue = styled.div`
-font-weight: 300;
-padding:10px;`
-
-export const HFieldBlock = styled.div`
-`
-
-export const Example = styled.div`
-font-family: monospace;
-margin-top:10px;
-margin-bottom: 10px;
-`
-
-export class Help extends React.Component {
-  render() {
-    return (
-      <HelpContainer>
-        {this.props.grammar.examples &&
-        <React.Fragment><HelpSectionHeader>Try These Examples</HelpSectionHeader>
-          <HFieldBlock>
-            {this.props.grammar.examples.map(e =>
-              <Example> > {e}</Example>)}
-          </HFieldBlock>
-        </React.Fragment>}
-        <HelpSectionHeader>Field</HelpSectionHeader>
-        {this.props.grammar.fields.map(f => (
-          <HFieldContainer>
-            <HFieldName>{f.field}</HFieldName>
-            {f.values.map(fi => <HFieldValue>{fi}</HFieldValue>)}
-          </HFieldContainer>))}
-      </HelpContainer>)
-  }
-}
 
 export default class ParsingInput extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { output: {}, value: '' }
+    this.state = { output: {}, value: '', showHelp: false }
     this.onChange = this.onChange.bind(this)
+    this.toggleHelp = this.toggleHelp.bind(this)
   }
 
   onChange(editor, data, value) {
@@ -298,18 +254,23 @@ export default class ParsingInput extends React.Component {
     } else {
       output = []
     }
-    if (!output) output = {}
+    if (!output) output = this.state.output //eslint-disable-line
     this.setState({ output, value })
   }
 
+  toggleHelp() {
+    const { showHelp } = this.state
+    this.setState({ showHelp: !showHelp })
+    console.log(showHelp, !showHelp)
+  }
+
   render() {
-    const { output } = this.state
-    const needHelp = output.instructions && output.instructions.map(i => i.operation).includes('help')
+    const { showHelp } = this.state
     return (
       <React.Fragment>
-        <BigOlTitle>Product Metrics Explorer</BigOlTitle>
+        <LeftCaveat><div>Prototype</div></LeftCaveat>
+        <HelpButton onClick={this.toggleHelp}>{showHelp ? 'Hide' : 'Show'} Help / fields </HelpButton>
         <InputContainer>
-          <HelpText>Type "help" at any time to get started</HelpText>
           <CodeMirrorContainer
             value={this.state.value}
             options={{
@@ -321,28 +282,16 @@ export default class ParsingInput extends React.Component {
             onChange={this.onChange}
           />
         </InputContainer>
-        {
-          needHelp ? <Help grammar={GRAMMAR} /> : undefined
-        }
-        {
-          Object.keys(this.state.output).length ? (
-            <OutputContainer>
-              {output.instructions && !needHelp && output.instructions.map(o => (
-                <OutputGroup key={`group-${o.key}`}>
-                  <OutputOperator key={`operator-${o.operation}`}>{o.operation}</OutputOperator>
-                  <OutputField key={o.key}>{o.key}</OutputField>
-                  {o.values.map(oo => <OutputValue key={oo}>{oo}</OutputValue>)}
-                </OutputGroup>))
-            }
-              {this.state.output.unmatchedTokens.length ?
-                <OutputGroup unmatched><OutputField>unmatched</OutputField>
-                  {this.state.output.unmatchedTokens.map(o =>
-                    <OutputValue key={o.value}>{o.value}</OutputValue>)}
-                </OutputGroup> : undefined}
-            </OutputContainer>
+        <OutputContainer>
+          {
+          (Object.keys(this.state.output).length) ? (
+            <ParsedOutput output={this.state.output} />
           ) :
           undefined
         }
+        </OutputContainer>
+        {showHelp ? <Help visible={showHelp} grammar={GRAMMAR} /> : undefined}
+
 
       </React.Fragment>
     )
