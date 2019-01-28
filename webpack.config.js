@@ -22,7 +22,7 @@ module.exports = (env) => {
     plugins.push(new webpack.DefinePlugin({
       'process.env.NODE_ENV': '"development"',
     }))
-    BUILD_DIR = path.resolve(__dirname, 'dev/')
+    BUILD_DIR = path.resolve(__dirname, 'docs/')
     APP_VERSION_STRING = 'dev'
     APP_PATH_STRING = ''
     CSS_PATH_STRING = ''
