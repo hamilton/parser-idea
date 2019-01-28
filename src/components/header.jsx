@@ -46,6 +46,6 @@ export default () => (
   <HeaderContainer>
     <div />
     <Main>Product Metrics Explorer</Main>
-    <Tagline>"It's a Buggy Proof of Concept!"</Tagline>
+    <Tagline />
   </HeaderContainer>
 )
